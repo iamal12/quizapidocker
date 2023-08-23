@@ -9,9 +9,16 @@ services:
       - "3000:3000"
     depends_on:
       - postgres
+    volumes:
+      - ./server:/app
+      - /app/node_modules
     environment:
       - DATABASE_URL
       - NODE_ENV
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
 
   postgres:
     image: postgres:13
