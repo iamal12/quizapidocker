@@ -1,0 +1,54 @@
+version: '3'
+
+services:
+  nest-app:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3000"
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL
+      - NODE_ENV=production
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - POSTGRES_HOST
+      - JWT_KEY
+    restart: always
+    networks:
+      - nest-network
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - nest-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "3003:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:
+
+
+networks:
+  nest-network:
+    driver: bridge
