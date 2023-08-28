@@ -1,20 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException, forwardRef } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { AuthService } from 'src/auth/auth.service';
+import * as bcrypt from 'bcryptjs'
+
 
 @Injectable()
 export class UsersService {
   constructor(@InjectRepository(User)
-  private userRepository: Repository<User>) {
+  private userRepository: Repository<User>, private readonly jwtService: JwtService,
+    @Inject(forwardRef(() => AuthService))
+    private readonly authService: AuthService) {
 
   }
 
   async create(createUserDto: CreateUserDto) {
-    const user = this.userRepository.create(createUserDto);
+    const salt = bcrypt.genSaltSync(10)
+    const hashedPassword = bcrypt.hashSync(createUserDto.password, salt)
+    const user = this.userRepository.create({ ...createUserDto, password: hashedPassword });
     return await this.userRepository.save(user)
+  }
+
+  async login(email: string, password: string) {
+    const payload = await this.authService.loginUsingEmail(email, password)
+    if (payload) {
+      return {
+        access_token: this.jwtService.sign(payload, { privateKey: process.env.JWT_KEY }),
+      };
+    }
+    throw new UnauthorizedException();
   }
 
   findAll() {
@@ -27,7 +45,10 @@ export class UsersService {
 
 
   async findById(id: number) {
-    return this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { id } });
+    console.log('IN here', user)
+    if (user) return user
+    return { message: 'User not found' }
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

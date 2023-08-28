@@ -8,6 +8,7 @@ async function bootstrap() {
   const config = new DocumentBuilder().setTitle('Quiz App')
     .setDescription('API for quiz app')
     .setVersion('1.0')
+    .addBearerAuth()
     .build()
 
   const document = SwaggerModule.createDocument(app, config)

@@ -10,8 +10,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./server:/app
-      - /app/node_modules
+      - ./server:/usr/src/app
+      - /usr/src/node_modules
     environment:
       - DATABASE_URL
       - NODE_ENV
@@ -19,6 +19,8 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DB
       - POSTGRES_HOST
+      - JWT_KEY
+
 
   postgres:
     image: postgres:13

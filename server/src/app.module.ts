@@ -7,6 +7,8 @@ import { UsersModule } from './users/users.module';
 import { TournementsModule } from './tournements/tournements.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CategoriesModule } from './categories/categories.module';
+import { AuthModule } from './auth/auth.module';
+
 @Module({
   imports: [ConfigModule.forRoot(), TypeOrmModule.forRoot({
     type: 'postgres',
@@ -17,7 +19,7 @@ import { CategoriesModule } from './categories/categories.module';
     database: process.env.POSTGRES_DB,
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }), UsersModule, TournementsModule, QuestionsModule, CategoriesModule],
+  }), UsersModule, TournementsModule, QuestionsModule, CategoriesModule, AuthModule],
   controllers: [AppController],
   providers: [AppService],
 })
