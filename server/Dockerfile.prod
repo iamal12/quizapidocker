@@ -9,6 +9,10 @@ COPY package*.json /usr/src/app
 
 RUN  npm config set registry https://registry.npmjs.com/
 
+RUN npm config get proxy
+RUN npm config rm proxy
+RUN npm config rm https-proxy
+
 RUN npm i
 
 # Copy the rest of the application to the container
