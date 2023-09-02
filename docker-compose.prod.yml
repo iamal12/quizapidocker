@@ -2,6 +2,7 @@ version: '3'
 
 services:
   nest-app:
+    container_name: server
     build:
       context: ./server
       dockerfile: Dockerfile
@@ -23,6 +24,7 @@ services:
 
   postgres:
     image: postgres:13
+    container_name: db
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -37,13 +39,17 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
+    container_name: pg_admin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+      PGADMIN_LISTEN_PORT: 5454
     ports:
-      - "3003:8080"
+      - "5454:5454"
     depends_on:
       - postgres
+    volumes:
+    - ./servers.json:/pgadmin4/servers.json
 
 volumes:
   pgdata:
