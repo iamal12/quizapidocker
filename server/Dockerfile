@@ -5,7 +5,7 @@ FROM node:16
 WORKDIR /usr/src/app
 
 # Copy package.json and package-lock.json to the container
-COPY package*.json /usr/src/app
+COPY package*.json .
 
 # Copy the rest of the application to the container
 COPY . .
@@ -14,4 +14,4 @@ COPY . .
 EXPOSE 3000
 
 # Define the command to run the app
-CMD ["npm", "start"]
+CMD ["npm", "run" "start:dev"]
