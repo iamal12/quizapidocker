@@ -8,6 +8,7 @@ import { TournementsModule } from './tournements/tournements.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
+import { WebsocketModule } from './socket/socket.module';
 
 @Module({
   imports: [ConfigModule.forRoot(), TypeOrmModule.forRoot({
@@ -19,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
     database: process.env.POSTGRES_DB,
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }), UsersModule, TournementsModule, QuestionsModule, CategoriesModule, AuthModule],
+  }), UsersModule, TournementsModule, QuestionsModule, CategoriesModule, AuthModule, WebsocketModule],
   controllers: [AppController],
   providers: [AppService],
 })

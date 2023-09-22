@@ -10,9 +10,10 @@ async function bootstrap() {
     .setVersion('1.0')
     .addBearerAuth()
     .build()
-
+    
   const document = SwaggerModule.createDocument(app, config)
   SwaggerModule.setup('swagger', app, document)
+  // app.useWebSocketAdapter(socketAdapter)
   await app.listen(3002);
 }
 bootstrap();
