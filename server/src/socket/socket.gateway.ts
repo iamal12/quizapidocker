@@ -1,6 +1,12 @@
 // src/websocket/websocket.gateway.ts
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
-import { Server } from 'socket.io';
+import { decode } from 'jsonwebtoken';
+import { Server, Socket } from 'socket.io';
+
+const MAIN_ROOM = 'mainRoom'
+enum MessageEnum {
+  USER_LIST = 'user list'
+}
 
 @WebSocketGateway({
   cors: {
@@ -11,21 +17,49 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   @WebSocketServer()
   server: Server;
 
-  handleConnection(client: any, ...args: any[]) {
-    // This method is called when a client connects to the WebSocket server.
-    console.log('Client connected');
+  private allUsers: Map<string, any> = new Map()
+
+  handleConnection(client: Socket, ...args: any[]) {
+    const jwtToken = client.handshake.query.token as string
+    const socketId = client.id
+    if (jwtToken && socketId) {
+      client.join(MAIN_ROOM)
+      const payload = decode(jwtToken)
+      this.allUsers.set(socketId, payload)
+      this.sendMessage(MAIN_ROOM, this.getTotalUsers())
+    }
+    console.log('Client connected', client.id);
   }
 
-  handleDisconnect(client: any) {
-    // This method is called when a client disconnects from the WebSocket server.
+  handleDisconnect(client: Socket) {
+    this.allUsers.delete(client.id)
+    const payload = this.getTotalUsers()
+    this.sendMessage(MAIN_ROOM, payload)
     console.log('Client disconnected');
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: any, payload: any): void {
-    // This method is called when a client sends a 'message' event.
-    console.log(`Message received: ${payload}`);
-    // You can send a response back to the client if needed.
-    this.server.emit('response', 'Received your message: ' + payload);
+  handleMessage(client: Socket, payload: MessageEnum) {
+    switch (payload) {
+      case MessageEnum.USER_LIST:
+        const payload = this.getTotalUsers()
+        this.sendMessage(client.id, payload)
+    }
+  }
+
+  getTotalUsers() {
+    const users = []
+    for (const value of this.allUsers) {
+      users.push({ ...value[1], socketId: value[0] })
+    }
+    return JSON.stringify(users).replace(/\\/g, "")
+  }
+
+  sendMessage(to: string, payload: string) {
+    this.server.to(to).emit(MAIN_ROOM, JSON.stringify(payload))
+
+  }
+  joinRoom(roomName: string, data: any) {
+
   }
 }

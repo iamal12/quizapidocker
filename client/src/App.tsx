@@ -7,7 +7,7 @@ import { io } from 'socket.io-client'
 function App() {
   const [count, setCount] = useState(0)
 
-  const socket = useRef(io('http://192.168.1.100:3002'))
+  const socket = useRef(io('https://quizapi.com'))
 
   useEffect(() => {
     if (socket.current) {
