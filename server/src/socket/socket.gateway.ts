@@ -2,9 +2,19 @@ import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnectio
 import { decode } from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
 
-const MAIN_ROOM = 'mainRoom'
+const LIST = {
+  MAIN_ROOM: 'mainRoom',
+  CHALLENGE: 'challenge'
+}
+
+
 enum MessageEnum {
-  USER_LIST = 'user list'
+  USER_LIST = 'user list',
+  CHALLENGE = 'challenge'
+}
+interface IMessage {
+  type: MessageEnum,
+  payload: any
 }
 
 @WebSocketGateway({
@@ -22,10 +32,11 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     const jwtToken = client.handshake.query.token as string
     const socketId = client.id
     if (jwtToken && socketId) {
-      client.join(MAIN_ROOM)
+      client.join(LIST.MAIN_ROOM)
       const payload = decode(jwtToken)
       this.allUsers.set(socketId, payload)
-      this.sendMessage(MAIN_ROOM, this.getTotalUsers())
+      console.log(this.getTotalUsers())
+      this.sendMessage(LIST.MAIN_ROOM, this.getTotalUsers())
     }
     console.log('Client connected', client.id);
   }
@@ -33,30 +44,37 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   handleDisconnect(client: Socket) {
     this.allUsers.delete(client.id)
     const payload = this.getTotalUsers()
-    this.sendMessage(MAIN_ROOM, payload)
+    this.sendMessage(LIST.MAIN_ROOM, payload)
     console.log('Client disconnected');
   }
 
   @SubscribeMessage('message')
-  handleMessage(client: Socket, payload: MessageEnum) {
-    switch (payload) {
-      case MessageEnum.USER_LIST:
+  handleMessage(client: Socket, payload: string) {
+    const parsedValue = JSON.parse(payload) as IMessage
+    switch (parsedValue.type) {
+      case MessageEnum.USER_LIST: {
         const payload = this.getTotalUsers()
         this.sendMessage(client.id, payload)
+        return;
+      }
+      case MessageEnum.CHALLENGE: {
+        const payload = JSON.stringify(this.allUsers.get(client.id))
+        this.sendMessage(parsedValue.payload, payload, LIST.CHALLENGE)
+        return;
+      }
     }
   }
 
   getTotalUsers() {
     const users = []
     for (const value of this.allUsers) {
-      users.push({ ...value[1], socketId: value[0] })
+        users.push({ ...value[1], socketId: value[0] })
     }
-    return JSON.stringify(users).replace(/\\/g, "")
+    return JSON.stringify(users)
   }
 
-  sendMessage(to: string, payload: string) {
-    this.server.to(to).emit(MAIN_ROOM, JSON.stringify(payload))
-
+  sendMessage(to: string, payload: string, client = LIST.MAIN_ROOM) {
+    this.server.to(to).emit(client, JSON.stringify(payload))
   }
   joinRoom(roomName: string, data: any) {
 
