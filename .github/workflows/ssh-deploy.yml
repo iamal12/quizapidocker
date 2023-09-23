@@ -25,6 +25,7 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script: |
               cd quizapidocker/
+              git pull origin main
               chmod +x ./deploy.sh
               ./deploy.sh
           shell: bash
