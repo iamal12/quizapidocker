@@ -35,7 +35,6 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       client.join(LIST.MAIN_ROOM)
       const payload = decode(jwtToken)
       this.allUsers.set(socketId, payload)
-      console.log(this.getTotalUsers())
       this.sendMessage(LIST.MAIN_ROOM, this.getTotalUsers())
     }
     console.log('Client connected', client.id);
@@ -68,7 +67,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   getTotalUsers() {
     const users = []
     for (const value of this.allUsers) {
-        users.push({ ...value[1], socketId: value[0] })
+      users.push({ ...value[1], socketId: value[0] })
     }
     return JSON.stringify(users)
   }
