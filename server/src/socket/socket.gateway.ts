@@ -1,4 +1,3 @@
-// src/websocket/websocket.gateway.ts
 import { WebSocketGateway, WebSocketServer, SubscribeMessage, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { decode } from 'jsonwebtoken';
 import { Server, Socket } from 'socket.io';
