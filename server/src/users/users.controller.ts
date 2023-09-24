@@ -5,6 +5,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { RoleGuard } from 'src/guards/role.guard';
 
 
 @ApiTags('Users')
@@ -23,6 +24,8 @@ export class UsersController {
     return this.usersService.login(loginDto.email, loginDto.password)
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'), new RoleGuard())
   @Get()
   findAll() {
     return this.usersService.findAll();

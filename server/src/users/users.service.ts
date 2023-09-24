@@ -7,6 +7,7 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { AuthService } from 'src/auth/auth.service';
 import * as bcrypt from 'bcryptjs'
+import { RoleEnum } from 'src/constants/enums';
 
 
 @Injectable()
@@ -21,7 +22,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto) {
     const salt = bcrypt.genSaltSync(10)
     const hashedPassword = bcrypt.hashSync(createUserDto.password, salt)
-    const user = this.userRepository.create({ ...createUserDto, password: hashedPassword });
+    const user = this.userRepository.create({ ...createUserDto, password: hashedPassword,role: RoleEnum.USER });
     return await this.userRepository.save(user)
   }
 
