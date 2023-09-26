@@ -1,11 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { useEffect, useRef } from 'react'
 import './App.css'
 import { io } from 'socket.io-client'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import LoginPage from './pages/Login'
+import { Alert, ThemeProvider } from '@mui/material'
+import { defaultTheme } from './theme/default'
+import Layout from './layout/Layout'
+import Snackbar from '@mui/material/Snackbar';
+import { useSnackbarStore } from './store/snackbar.store'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const { anchorOrigin, open, ...snackbarProps } = useSnackbarStore((state) => state.snackbar)
+  const closeSnackbar = useSnackbarStore((state) => state.closeSnackbar)
+  // const [count, setCount] = useState(0)
 
   const socket = useRef(io('https://quizapi.com'))
 
@@ -19,28 +27,17 @@ function App() {
   }, [socket])
 
   return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <ThemeProvider theme={defaultTheme} >
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<LoginPage />} />
+          <Route path="*"  element={<Layout />} />
+        </Routes>
+      </BrowserRouter>
+      <Snackbar open={open} autoHideDuration={2000} anchorOrigin={anchorOrigin} onClose={closeSnackbar} >
+        <Alert {...snackbarProps} />
+      </Snackbar>
+    </ThemeProvider>
   )
 }
 
