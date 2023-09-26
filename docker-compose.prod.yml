@@ -7,10 +7,12 @@ services:
       context: ./client
       dockerfile: Dockerfile.prod
     ports:
-      - "3008:80"
+      - "3008:3008"
     restart: always
     networks:
       - nest-network
+    environment:
+      - APP_URL
 
   nest-app:
     container_name: server

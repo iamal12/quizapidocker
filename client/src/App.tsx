@@ -1,13 +1,19 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import './App.css'
 import { io } from 'socket.io-client'
-import { RouterProvider, createBrowserRouter } from 'react-router-dom'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/Login'
-import { ThemeProvider } from '@mui/material'
+import { Alert, ThemeProvider } from '@mui/material'
 import { defaultTheme } from './theme/default'
+import Layout from './layout/Layout'
+import Snackbar from '@mui/material/Snackbar';
+import { useSnackbarStore } from './store/snackbar.store'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const { anchorOrigin, open, ...snackbarProps } = useSnackbarStore((state) => state.snackbar)
+  const closeSnackbar = useSnackbarStore((state) => state.closeSnackbar)
+  // const [count, setCount] = useState(0)
 
   const socket = useRef(io('https://quizapi.com'))
 
@@ -20,18 +26,17 @@ function App() {
 
   }, [socket])
 
-
-  const router = createBrowserRouter([
-    {
-      path: "/",
-      element: <LoginPage />
-    }
-  ])
-
-
   return (
     <ThemeProvider theme={defaultTheme} >
-      <RouterProvider router={router} />
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<LoginPage />} />
+          <Route path="*"  element={<Layout />} />
+        </Routes>
+      </BrowserRouter>
+      <Snackbar open={open} autoHideDuration={2000} anchorOrigin={anchorOrigin} onClose={closeSnackbar} >
+        <Alert {...snackbarProps} />
+      </Snackbar>
     </ThemeProvider>
   )
 }

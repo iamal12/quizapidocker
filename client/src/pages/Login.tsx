@@ -1,7 +1,10 @@
 import { Box, Button, Paper, TextField, Typography, styled } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { axiosInstance } from "../controller/axios/axios";
-import { userRoutes } from "../constants/routes";
+import { appRoutes, userRoutes } from "../constants/routes";
+import { useNavigate } from "react-router";
+import { useSnackbarStore } from "../store/snackbar.store";
+import { SESSION } from "../constants/common";
 
 const StyledPaper = styled(Paper)`
     max-width: 300px;
@@ -15,14 +18,27 @@ export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
 
+    const setSnackbar = useSnackbarStore(state => state.setSnackbar)
+
+
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const session = localStorage.getItem(SESSION)
+        if (session) {
+            navigate(appRoutes.DASHBOARD, { replace: true })
+        }
+    }, [])
+
     const onSubmit = async () => {
         if (email && password) {
             try {
                 const result = await axiosInstance.post<{ access_token: string }>(userRoutes.LOGIN_ROUTE, { email, password })
-                localStorage.setItem('quiz_app_session', result.data.access_token)
-
+                localStorage.setItem(SESSION, result.data.access_token)
+                navigate(appRoutes.DASHBOARD, { replace: true })
+                setSnackbar({ children: 'Signed in successfully' })
             } catch {
-
+                setSnackbar({ children: 'Wrong credentials', severity: 'error' })
             }
         }
     }

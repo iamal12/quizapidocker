@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useUserStore } from "../../store/user.store";
+import { SESSION } from "../../constants/common";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL
 
@@ -10,7 +10,18 @@ export const axiosInstance = axios.create({
 })
 
 axiosInstance.interceptors.request.use(function (config) {
-    const token = useUserStore.getState().authToken
-    config.headers.Authorization = `Bearer ${token}`
+    const token = localStorage.getItem(SESSION)
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+    }
     return config
+})
+
+axiosInstance.interceptors.response.use(res => res, err => {
+    const { status } = err.response
+    if (status === 403 || status === 401) {
+        localStorage.setItem(SESSION, '')
+        window.location.href = '/'
+    }
+    return Promise.reject(err)
 })

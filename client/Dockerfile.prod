@@ -16,14 +16,12 @@ COPY . .
 # Build the React application for production
 RUN npm run build
 
-# Use a smaller image for production
-FROM nginx:alpine
 
-# Copy the built assets from the previous stage to the NGINX web server directory
-COPY --from=build /app/dist /usr/share/nginx/html
+RUN npm install -g http-server
 
 # Expose port 80
-EXPOSE 80
+EXPOSE 3008
+
 
 # Start the NGINX web server
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "run", "serve"]
