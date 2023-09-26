@@ -49,6 +49,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   @SubscribeMessage('message')
   handleMessage(client: Socket, payload: string) {
+    console.log('PAYLOAD', payload)
     const parsedValue = JSON.parse(payload) as IMessage
     switch (parsedValue.type) {
       case MessageEnum.USER_LIST: {
@@ -58,8 +59,10 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
       case MessageEnum.CHALLENGE: {
         const { user, category } = parsedValue.payload
+        console.log('IN CHALLENGE', user, category)
         const opponentUser = this.allUsers.get(client.id)
         const payload = JSON.stringify({ user: opponentUser, category })
+        console.log('SENDING PAYLOAD', payload, 'TO', user)
         this.sendMessage(user, payload, LIST.CHALLENGE)
         return;
       }
