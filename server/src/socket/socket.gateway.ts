@@ -57,8 +57,10 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         return;
       }
       case MessageEnum.CHALLENGE: {
-        const payload = JSON.stringify(this.allUsers.get(client.id))
-        this.sendMessage(parsedValue.payload, payload, LIST.CHALLENGE)
+        const { user, category } = parsedValue.payload
+        const opponentUser = this.allUsers.get(client.id)
+        const payload = JSON.stringify({ user: opponentUser, category })
+        this.sendMessage(user, payload, LIST.CHALLENGE)
         return;
       }
     }
