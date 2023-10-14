@@ -4,13 +4,15 @@ import { Server, Socket } from 'socket.io';
 
 const LIST = {
   MAIN_ROOM: 'mainRoom',
-  CHALLENGE: 'challenge'
+  CHALLENGE: 'challenge',
+  CHALLENGE_ACCEPTED: 'challenge_accepted'
 }
 
 
 enum MessageEnum {
   USER_LIST = 'user list',
-  CHALLENGE = 'challenge'
+  CHALLENGE = 'challenge',
+  ACCEPT_CHALLENGE = 'accept_challenge'
 }
 interface IMessage {
   type: MessageEnum,
@@ -61,10 +63,20 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         const { user, category } = parsedValue.payload
         console.log('IN CHALLENGE', user, category)
         const opponentUser = this.allUsers.get(client.id)
+        opponentUser.clientId = client.id
         const payload = JSON.stringify({ user: opponentUser, category })
         console.log('SENDING PAYLOAD', payload, 'TO', user)
         this.sendMessage(user, payload, LIST.CHALLENGE)
         return;
+      }
+      case MessageEnum.ACCEPT_CHALLENGE: {
+        const { clientId, opponentEmail } = parsedValue.payload
+        const acceptedMessage = { accepted: true, opponentEmail }
+        console.log('SENDING MESSAGE TO OPPONENT')
+        this.sendMessage(clientId, JSON.stringify(acceptedMessage), LIST.CHALLENGE_ACCEPTED)
+        const users = [client.id, clientId]
+        console.log('JOINING ROOM')
+        this.joinRoom(clientId, users)
       }
     }
   }
@@ -80,7 +92,15 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   sendMessage(to: string, payload: string, client = LIST.MAIN_ROOM) {
     this.server.to(to).emit(client, JSON.stringify(payload))
   }
-  joinRoom(roomName: string, data: any) {
-
+  joinRoom(roomName: string, users: string[]) {
+    users.forEach(user => {
+      const socket = this.server.sockets.sockets.get(user)
+      if (socket) {
+        console.log(user, 'JOINED ROOM')
+        socket.join(roomName)
+      } else {
+        console.log('NO SOCKET FOUND')
+      }
+    })
   }
 }
