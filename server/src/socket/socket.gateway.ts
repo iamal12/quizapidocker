@@ -61,7 +61,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
       case MessageEnum.CHALLENGE: {
         const { user, category } = parsedValue.payload
-        console.log('IN CHALLENGE', user, category)
+        console.log('IN CHALLENGE', user, category, client.id)
         const opponentUser = this.allUsers.get(client.id)
         opponentUser.clientId = client.id
         const payload = JSON.stringify({ user: opponentUser, category })
@@ -72,7 +72,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case MessageEnum.ACCEPT_CHALLENGE: {
         const { clientId, opponentEmail } = parsedValue.payload
         const acceptedMessage = { accepted: true, opponentEmail }
-        console.log('SENDING MESSAGE TO OPPONENT')
+        console.log('SENDING MESSAGE TO OPPONENT', clientId, client.id)
         this.sendMessage(clientId, JSON.stringify(acceptedMessage), LIST.CHALLENGE_ACCEPTED)
         const users = [client.id, clientId]
         console.log('JOINING ROOM')
