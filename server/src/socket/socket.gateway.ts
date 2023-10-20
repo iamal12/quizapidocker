@@ -14,9 +14,21 @@ enum MessageEnum {
   CHALLENGE = 'challenge',
   ACCEPT_CHALLENGE = 'accept_challenge'
 }
+
+enum RoomMessageEnum {
+  OPTION_SELECTED = 'option selected'
+}
 interface IMessage {
   type: MessageEnum,
   payload: any
+}
+
+interface IRoomMessage {
+  type: RoomMessageEnum
+  payload: any
+}
+interface IScore {
+  [key: string]: number
 }
 
 @WebSocketGateway({
@@ -29,6 +41,10 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
   server: Server;
 
   private allUsers: Map<string, any> = new Map()
+
+
+  private challengeScores: Map<string, IScore> = new Map()
+
 
   handleConnection(client: Socket, ...args: any[]) {
     const jwtToken = client.handshake.query.token as string
@@ -75,11 +91,30 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         console.log('SENDING MESSAGE TO OPPONENT', clientId, client.id)
         this.sendMessage(clientId, JSON.stringify(acceptedMessage), LIST.CHALLENGE_ACCEPTED)
         const users = [client.id, clientId]
+        this.challengeScores.set(clientId, { [clientId]: 0, [client.id]: 0 })
         console.log('JOINING ROOM')
         this.joinRoom(clientId, users)
       }
     }
   }
+
+  @SubscribeMessage('room')
+  handleRoomMessage(client: Socket, payload: string) {
+    console.log('PAYLOAD -- room', payload)
+    const parsedValue = JSON.parse(payload) as IRoomMessage
+    switch (parsedValue.type) {
+      case RoomMessageEnum.OPTION_SELECTED:
+        const { roomId, score } = parsedValue.payload
+        const currentScore = { ...this.challengeScores.get(roomId) }
+        currentScore[client.id] = currentScore[client.id] + score
+        this.challengeScores.set(roomId, currentScore)
+        console.log('>>>>> SENDING score', currentScore)
+        this.server.in(roomId).emit(JSON.stringify(currentScore))
+        return
+    }
+
+  }
+
 
   getTotalUsers() {
     const users = []
