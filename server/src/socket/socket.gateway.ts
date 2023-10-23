@@ -106,6 +106,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case RoomMessageEnum.OPTION_SELECTED:
         const { roomId, score } = parsedValue.payload
         const currentScore = { ...this.challengeScores.get(roomId) }
+        console.log('ROOM ID', roomId)
+        console.log('CURRENT SCORE', currentScore, 'CURRENT SOCKET', client.id)
         currentScore[client.id] = currentScore[client.id] + score
         this.challengeScores.set(roomId, currentScore)
         console.log('>>>>> SENDING score', currentScore)
