@@ -109,7 +109,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         currentScore[client.id] = currentScore[client.id] + score
         this.challengeScores.set(roomId, currentScore)
         console.log('>>>>> SENDING score', currentScore)
-        this.server.to(roomId).emit(JSON.stringify(currentScore))
+        this.server.to(roomId).emit('room', JSON.stringify(currentScore))
         return
     }
 
