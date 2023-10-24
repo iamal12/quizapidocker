@@ -16,7 +16,8 @@ enum MessageEnum {
 }
 
 enum RoomMessageEnum {
-  OPTION_SELECTED = 'option selected'
+  OPTION_SELECTED = 'option selected',
+  QUIZ_COMPLETED = 'quiz completed'
 }
 interface IMessage {
   type: MessageEnum,
@@ -62,6 +63,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     this.allUsers.delete(client.id)
     const payload = this.getTotalUsers()
     this.sendMessage(LIST.MAIN_ROOM, payload)
+    this.challengeScores.delete(client.id)
     console.log('Client disconnected');
   }
 
@@ -112,6 +114,10 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.challengeScores.set(roomId, currentScore)
         console.log('>>>>> SENDING score', currentScore)
         this.server.to(roomId).emit('room', JSON.stringify(currentScore))
+        return
+      case RoomMessageEnum.QUIZ_COMPLETED:
+        this.challengeScores.delete(client.id)
+        console.log('REMOVED ROOMS', this.challengeScores)
         return
     }
 
