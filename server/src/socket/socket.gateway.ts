@@ -19,7 +19,8 @@ enum RoomMessageEnum {
   OPTION_SELECTED = 'option selected',
   QUIZ_COMPLETED = 'quiz completed',
   CREATE_ROOM = 'create room',
-  JOIN_ROOM = 'join room'
+  JOIN_ROOM = 'join room',
+  ROOM_LIST = 'room list'
 }
 interface IMessage {
   type: MessageEnum,
@@ -164,6 +165,13 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
         console.log('JOINED ROOM', this.roomScores)
 
+        return
+      }
+
+      case RoomMessageEnum.ROOM_LIST: {
+        const { roomCode } = parsedValue.payload
+        const usersArray = this.roomScores.get(roomCode) ?? []
+        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
         return
       }
 
