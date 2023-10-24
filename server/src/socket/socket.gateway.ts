@@ -56,6 +56,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
   private roomScores: Map<string, IRoomScore[]> = new Map()
 
+  private rooms: Map<string, string> = new Map()
+
 
   handleConnection(client: Socket, ...args: any[]) {
     const jwtToken = client.handshake.query.token as string
@@ -74,6 +76,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     const payload = this.getTotalUsers()
     this.sendMessage(LIST.MAIN_ROOM, payload)
     this.challengeScores.delete(client.id)
+    this.roomScores.delete(this.rooms.get(client.id))
+    this.rooms.delete(client.id)
     console.log('Client disconnected');
   }
 
@@ -138,6 +142,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
           socketId: client.id,
           score: 0
         })
+        this.rooms.set(client.id, roomId)
         this.roomScores.set(roomCode, usersArray)
         this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
         console.log('CREATED ROOM', this.roomScores)
@@ -147,6 +152,9 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         const { roomCode, name } = parsedValue.payload
         this.joinRoom(roomCode, [client.id])
         const usersArray = this.roomScores.get(roomCode) ?? []
+        if (usersArray.findIndex(value => value.socketId === client.id) >= 0) {
+          return
+        }
         usersArray.push({
           name,
           socketId: client.id,
