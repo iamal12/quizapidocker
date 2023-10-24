@@ -142,7 +142,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
           socketId: client.id,
           score: 0
         })
-        this.rooms.set(client.id, roomId)
+        this.rooms.set(client.id, roomCode)
         this.roomScores.set(roomCode, usersArray)
         this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
         console.log('CREATED ROOM', this.roomScores)
