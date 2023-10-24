@@ -17,7 +17,9 @@ enum MessageEnum {
 
 enum RoomMessageEnum {
   OPTION_SELECTED = 'option selected',
-  QUIZ_COMPLETED = 'quiz completed'
+  QUIZ_COMPLETED = 'quiz completed',
+  CREATE_ROOM = 'create room',
+  JOIN_ROOM = 'join room'
 }
 interface IMessage {
   type: MessageEnum,
@@ -30,6 +32,12 @@ interface IRoomMessage {
 }
 interface IScore {
   [key: string]: number
+}
+
+interface IRoomScore {
+  name: string
+  score: number,
+  socketId: string
 }
 
 @WebSocketGateway({
@@ -45,6 +53,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
 
   private challengeScores: Map<string, IScore> = new Map()
+
+  private roomScores: Map<string, IRoomScore[]> = new Map()
 
 
   handleConnection(client: Socket, ...args: any[]) {
@@ -119,6 +129,36 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.challengeScores.delete(client.id)
         console.log('REMOVED ROOMS', this.challengeScores)
         return
+      case RoomMessageEnum.CREATE_ROOM: {
+        const { roomCode, name } = parsedValue.payload
+        this.joinRoom(roomCode, [client.id])
+        const usersArray = []
+        usersArray.push({
+          name,
+          socketId: client.id,
+          score: 0
+        })
+        this.roomScores.set(roomCode, usersArray)
+        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        console.log('CREATED ROOM', this.roomScores)
+        return
+      }
+      case RoomMessageEnum.JOIN_ROOM: {
+        const { roomCode, name } = parsedValue.payload
+        this.joinRoom(roomCode, [client.id])
+        const usersArray = this.roomScores.get(roomCode) ?? []
+        usersArray.push({
+          name,
+          socketId: client.id,
+          score: 0
+        })
+        this.roomScores.set(roomCode, usersArray)
+        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        console.log('JOINED ROOM', this.roomScores)
+
+        return
+      }
+
     }
 
   }
