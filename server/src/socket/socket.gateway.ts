@@ -198,7 +198,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
           console.log('NO ROOM FOUND')
           return
         }
-        const usersArray = roomCode.map(value => {
+        const usersArray = roomScore.map(value => {
           if (value.socketId) {
             value.score += score
           }
