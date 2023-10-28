@@ -137,6 +137,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case RoomMessageEnum.CREATE_ROOM: {
         const { roomCode, name } = parsedValue.payload
         this.joinRoom(roomCode, [client.id])
+        const response = {type: 'USER_LIST',users: []}
         const usersArray = []
         usersArray.push({
           name,
@@ -145,7 +146,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         })
         this.rooms.set(client.id, roomCode)
         this.roomScores.set(roomCode, usersArray)
-        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        response.users = usersArray
+        this.server.to(roomCode).emit('room', JSON.stringify(response))
         console.log('CREATED ROOM', this.roomScores)
         return
       }
@@ -156,13 +158,15 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         if (usersArray.findIndex(value => value.socketId === client.id) >= 0) {
           return
         }
+        const response = {type: 'USER_LIST',users: []}
         usersArray.push({
           name,
           socketId: client.id,
           score: 0
         })
         this.roomScores.set(roomCode, usersArray)
-        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        response.users = usersArray
+        this.server.to(roomCode).emit('room', JSON.stringify(response))
         console.log('JOINED ROOM', this.roomScores)
 
         return
