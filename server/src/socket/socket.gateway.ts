@@ -192,7 +192,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       }
 
       case RoomMessageEnum.ROOM_OPTION_SELECTED: {
-        const { payload: { roomCode, score } } = parsedValue.payload
+        const { roomCode, score } = parsedValue.payload
         const roomScore = this.roomScores.get(roomCode)
         if (!roomScore) {
           console.log('NO ROOM FOUND')
