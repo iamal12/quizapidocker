@@ -171,10 +171,12 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         if (!Array.isArray(usersArray)) {
           const response = { type: 'ROOM_NOT_EXIST' }
           client.emit('quiz meta', JSON.stringify(response))
+          console.log('ROOM DOES NOT EXIST', response)
           return
         }
+        console.log('ROOM EXISTS')
 
-        client.emit('quiz meta', JSON.stringify({type: 'ROOM_EXIST'}))
+        client.emit('quiz meta', JSON.stringify({ type: 'ROOM_EXIST' }))
         if (usersArray.findIndex(value => value.socketId === client.id) >= 0) {
           return
         }
