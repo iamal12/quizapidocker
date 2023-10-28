@@ -188,6 +188,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         const { roomCode } = parsedValue.payload
         const response = { type: 'QUIZ_STARTED' }
         this.server.to(roomCode).emit('room', JSON.stringify(response))
+        return
       }
 
       case RoomMessageEnum.ROOM_OPTION_SELECTED: {
