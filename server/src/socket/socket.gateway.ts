@@ -17,6 +17,7 @@ enum MessageEnum {
 
 enum RoomMessageEnum {
   OPTION_SELECTED = 'option selected',
+  ROOM_OPTION_SELECTED = 'room option selected',
   QUIZ_COMPLETED = 'quiz completed',
   CREATE_ROOM = 'create room',
   JOIN_ROOM = 'join room',
@@ -189,6 +190,24 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.server.to(roomCode).emit('room', JSON.stringify(response))
       }
 
+      case RoomMessageEnum.ROOM_OPTION_SELECTED: {
+        const { payload: { roomCode, score } } = parsedValue.payload
+        const roomScore = this.roomScores.get(roomCode)
+        if (!roomScore) {
+          console.log('NO ROOM FOUND')
+          return
+        }
+        const usersArray = roomCode.map(value => {
+          if (value.socketId) {
+            value.score += score
+          }
+          return value
+        })
+        console.log('NEW SCORE >>>>>', client.id, usersArray)
+        this.roomScores.set(roomCode, usersArray)
+        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        return
+      }
     }
 
   }
