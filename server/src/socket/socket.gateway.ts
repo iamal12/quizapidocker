@@ -174,9 +174,11 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
       case RoomMessageEnum.ROOM_LIST: {
         const { roomCode } = parsedValue.payload
+        const response = {type: 'USER_LIST',users: []}
         const usersArray = this.roomScores.get(roomCode) ?? []
+        response.users = usersArray
         console.log('ROOM CODE', roomCode, 'VALUE', usersArray)
-        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        this.server.to(roomCode).emit('room', JSON.stringify(response))
         return
       }
 
