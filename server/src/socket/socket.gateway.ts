@@ -114,7 +114,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.challengeScores.set(clientId, { [clientId]: 0, [client.id]: 0 })
         console.log('JOINING ROOM')
         this.joinRoom(clientId, users)
-        return 
+        return
       }
 
       case MessageEnum.REJECT_CHALLENGE: {
@@ -167,7 +167,12 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case RoomMessageEnum.JOIN_ROOM: {
         const { roomCode, name } = parsedValue.payload
         this.joinRoom(roomCode, [client.id])
-        const usersArray = this.roomScores.get(roomCode) ?? []
+        const usersArray = this.roomScores.get(roomCode)
+        if (!Array.isArray(usersArray)) {
+          const response = { type: 'ROOM_NOT_EXIST' }
+          this.server.to(roomCode).emit('room', JSON.stringify(response))
+          return
+        }
         if (usersArray.findIndex(value => value.socketId === client.id) >= 0) {
           return
         }
