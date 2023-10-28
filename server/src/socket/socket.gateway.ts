@@ -199,7 +199,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
           return
         }
         const usersArray = roomScore.map(value => {
-          if (value.socketId) {
+          if (value.socketId === client.id) {
             value.score += score
           }
           return value
