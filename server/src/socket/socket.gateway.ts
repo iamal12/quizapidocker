@@ -226,7 +226,8 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         })
         console.log('NEW SCORE >>>>>', client.id, usersArray)
         this.roomScores.set(roomCode, usersArray)
-        this.server.to(roomCode).emit('room', JSON.stringify(usersArray))
+        const response = { type: "SCORE", users: usersArray}
+        this.server.to(roomCode).emit('room', JSON.stringify(response))
         return
       }
     }
