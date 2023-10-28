@@ -20,7 +20,8 @@ enum RoomMessageEnum {
   QUIZ_COMPLETED = 'quiz completed',
   CREATE_ROOM = 'create room',
   JOIN_ROOM = 'join room',
-  ROOM_LIST = 'room list'
+  ROOM_LIST = 'room list',
+  START_QUIZ_ROOM = 'start quizroom'
 }
 interface IMessage {
   type: MessageEnum,
@@ -137,7 +138,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case RoomMessageEnum.CREATE_ROOM: {
         const { roomCode, name } = parsedValue.payload
         this.joinRoom(roomCode, [client.id])
-        const response = {type: 'USER_LIST',users: []}
+        const response = { type: 'USER_LIST', users: [] }
         const usersArray = []
         usersArray.push({
           name,
@@ -158,7 +159,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         if (usersArray.findIndex(value => value.socketId === client.id) >= 0) {
           return
         }
-        const response = {type: 'USER_LIST',users: []}
+        const response = { type: 'USER_LIST', users: [] }
         usersArray.push({
           name,
           socketId: client.id,
@@ -174,12 +175,18 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
       case RoomMessageEnum.ROOM_LIST: {
         const { roomCode } = parsedValue.payload
-        const response = {type: 'USER_LIST',users: []}
+        const response = { type: 'USER_LIST', users: [] }
         const usersArray = this.roomScores.get(roomCode) ?? []
         response.users = usersArray
         console.log('ROOM CODE', roomCode, 'VALUE', usersArray)
         this.server.to(roomCode).emit('room', JSON.stringify(response))
         return
+      }
+
+      case RoomMessageEnum.START_QUIZ_ROOM: {
+        const { roomCode } = parsedValue.payload
+        const response = { type: 'QUIZ_STARTED' }
+        this.server.to(roomCode).emit('room', JSON.stringify(response))
       }
 
     }
