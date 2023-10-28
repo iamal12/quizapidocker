@@ -120,7 +120,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
       case MessageEnum.REJECT_CHALLENGE: {
         const { clientId, opponentEmail } = parsedValue.payload
         const acceptedMessage = { accepted: false, opponentEmail }
-        console.log('SENDING MESSAGE TO OPPONENT', clientId, client.id)
+        console.log('SENDING MESSAGE TO OPPONENT', clientId, acceptedMessage)
         this.sendMessage(clientId, JSON.stringify(acceptedMessage), LIST.CHALLENGE_ACCEPTED)
         console.log('JOINING ROOM')
         return
