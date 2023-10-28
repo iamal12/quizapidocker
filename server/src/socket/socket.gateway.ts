@@ -12,7 +12,8 @@ const LIST = {
 enum MessageEnum {
   USER_LIST = 'user list',
   CHALLENGE = 'challenge',
-  ACCEPT_CHALLENGE = 'accept_challenge'
+  ACCEPT_CHALLENGE = 'accept_challenge',
+  REJECT_CHALLENGE = 'reject_challenge'
 }
 
 enum RoomMessageEnum {
@@ -113,6 +114,16 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         this.challengeScores.set(clientId, { [clientId]: 0, [client.id]: 0 })
         console.log('JOINING ROOM')
         this.joinRoom(clientId, users)
+        return 
+      }
+
+      case MessageEnum.REJECT_CHALLENGE: {
+        const { clientId, opponentEmail } = parsedValue.payload
+        const acceptedMessage = { accepted: false, opponentEmail }
+        console.log('SENDING MESSAGE TO OPPONENT', clientId, client.id)
+        this.sendMessage(clientId, JSON.stringify(acceptedMessage), LIST.CHALLENGE_ACCEPTED)
+        console.log('JOINING ROOM')
+        return
       }
     }
   }
