@@ -144,17 +144,27 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
     switch (parsedValue.type) {
       case OneVOneMessageEnum.RANDOM_ROOM: {
         const value = parsedValue.payload as IOneVOneScore
-        const index = this.soloScores.findIndex(val=>val.category === value.category)
+        const index = this.soloScores.findIndex(val => val.category === value.category)
         console.log('CHECKING IF ALREADY EXISTS')
-        if(index>=0){
-          const opponentUser = {...this.soloScores[index]}
-          console.log('EXIST',opponentUser)
-          this.soloScores.splice(index,1)
-          this.sendMessage(client.id,JSON.stringify(opponentUser),LIST.RANDOM_ACCEPTED)
-          this.sendMessage(opponentUser.socketId,JSON.stringify(value),LIST.RANDOM_ACCEPTED)
-        }else{
+        if (index >= 0) {
+          const opponentUser = { ...this.soloScores[index] }
+          console.log('EXIST', opponentUser)
+          const score = { ...this.challengeScores.get(opponentUser.socketId) }
+          score[client.id] = 0
+          console.log('OPPONENT USER', score)
+          this.challengeScores.set(opponentUser.socketId, score)
+          this.soloScores.splice(index, 1)
+          console.log('JOINING TO ROOM ')
+          const users = [client.id, opponentUser.socketId]
+          this.joinRoom(opponentUser.socketId, users)
+          console.log('ADDED TO ROOM')
+          this.sendMessage(client.id, JSON.stringify(opponentUser), LIST.RANDOM_ACCEPTED)
+          this.sendMessage(opponentUser.socketId, JSON.stringify(value), LIST.RANDOM_ACCEPTED)
+        } else {
           this.soloScores.push(value)
-          console.log('DONT EXIST',this.soloScores)
+          console.log('DONT EXIST', this.soloScores)
+          console.log('ADDING DETAILS TO SCORE')
+          this.challengeScores.set(client.id, { [client.id]: 0 })
         }
       }
 
