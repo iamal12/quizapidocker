@@ -158,7 +158,9 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
           const users = [client.id, opponentUser.socketId]
           this.joinRoom(opponentUser.socketId, users)
           console.log('ADDED TO ROOM')
+          console.log('SENDING TO JOINEE',client.id,{ ...opponentUser, accepted: true })
           this.sendMessage(client.id, JSON.stringify({ ...opponentUser, accepted: true }), LIST.RANDOM_ACCEPTED)
+          console.log('SENDING TO HOST',opponentUser.socketId,{ ...value, accepted: false })
           this.sendMessage(opponentUser.socketId, JSON.stringify({ ...value, accepted: false }), LIST.RANDOM_ACCEPTED)
         } else {
           this.soloScores.push(value)
