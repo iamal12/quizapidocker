@@ -5,7 +5,8 @@ import { Server, Socket } from 'socket.io';
 const LIST = {
   MAIN_ROOM: 'mainRoom',
   CHALLENGE: 'challenge',
-  CHALLENGE_ACCEPTED: 'challenge_accepted'
+  CHALLENGE_ACCEPTED: 'challenge_accepted',
+  RANDOM_ACCEPTED: '1vs1_accepted'
 }
 
 
@@ -25,6 +26,10 @@ enum RoomMessageEnum {
   ROOM_LIST = 'room list',
   START_QUIZ_ROOM = 'start quizroom'
 }
+
+enum OneVOneMessageEnum {
+  RANDOM_ROOM = 'random room',
+}
 interface IMessage {
   type: MessageEnum,
   payload: any
@@ -43,6 +48,9 @@ interface IRoomScore {
   score: number,
   socketId: string
 }
+interface IOneVOneScore extends IRoomScore {
+  category: string
+}
 
 @WebSocketGateway({
   cors: {
@@ -57,6 +65,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
 
 
   private challengeScores: Map<string, IScore> = new Map()
+  private soloScores: Array<IOneVOneScore> = []
 
   private roomScores: Map<string, IRoomScore[]> = new Map()
 
@@ -126,6 +135,31 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         return
       }
     }
+  }
+
+  @SubscribeMessage('1vs1')
+  handle1v1Message(client: Socket, payload: string) {
+    console.log('PAYLOAD', payload)
+    const parsedValue = JSON.parse(payload)
+    switch (parsedValue.type) {
+      case OneVOneMessageEnum.RANDOM_ROOM: {
+        const value = parsedValue.payload as IOneVOneScore
+        const index = this.soloScores.findIndex(val=>val.category === value.category)
+        console.log('CHECKING IF ALREADY EXISTS')
+        if(index>=0){
+          const opponentUser = {...this.soloScores[index]}
+          console.log('EXIST',opponentUser)
+          this.soloScores.splice(index,1)
+          this.sendMessage(client.id,JSON.stringify(opponentUser),LIST.RANDOM_ACCEPTED)
+          this.sendMessage(opponentUser.socketId,JSON.stringify(value),LIST.RANDOM_ACCEPTED)
+        }else{
+          this.soloScores.push(value)
+          console.log('DONT EXIST',this.soloScores)
+        }
+      }
+
+    }
+
   }
 
   @SubscribeMessage('room')
@@ -226,7 +260,7 @@ export class WebsocketGateway implements OnGatewayConnection, OnGatewayDisconnec
         })
         console.log('NEW SCORE >>>>>', client.id, usersArray)
         this.roomScores.set(roomCode, usersArray)
-        const response = { type: "SCORE", users: usersArray}
+        const response = { type: "SCORE", users: usersArray }
         this.server.to(roomCode).emit('room', JSON.stringify(response))
         return
       }
