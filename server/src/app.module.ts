@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
-import { TournementsModule } from './tournements/tournements.module';
 import { QuestionsModule } from './questions/questions.module';
 import { CategoriesModule } from './categories/categories.module';
 import { AuthModule } from './auth/auth.module';
@@ -20,7 +19,7 @@ import { WebsocketModule } from './socket/socket.module';
     database: process.env.POSTGRES_DB,
     entities: [__dirname + '/**/*.entity{.ts,.js}'],
     synchronize: true,
-  }), UsersModule, TournementsModule, QuestionsModule, CategoriesModule, AuthModule, WebsocketModule],
+  }), UsersModule, QuestionsModule, CategoriesModule, AuthModule, WebsocketModule],
   controllers: [AppController],
   providers: [AppService],
 })
