@@ -14,11 +14,11 @@ export class Tournament extends BaseEntity {
     @Column({ type: 'timestamp' })
     startTime: Date
 
-    @ManyToMany(() => User)
+    @ManyToMany(() => User, {nullable: true})
     @JoinTable()
     users: User[]
 
-    @OneToOne(() => Category)
+    @OneToOne(() => Category,{nullable: true})
     @JoinColumn()
-    category: Category
+    category?: Category
 }

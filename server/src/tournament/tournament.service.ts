@@ -1,19 +1,27 @@
 import { Injectable } from '@nestjs/common';
 import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Tournament } from './entities/tournament.entity';
+import { Repository } from 'typeorm';
+import { CategoriesService } from 'src/categories/categories.service';
 
 @Injectable()
 export class TournamentService {
-  create(createTournamentDto: CreateTournamentDto) {
-    return 'This action adds a new tournament';
+  constructor(@InjectRepository(Tournament) private tournamentRepository: Repository<Tournament>, private categoryService: CategoriesService) { }
+  async create(createTournamentDto: CreateTournamentDto) {
+    const {category,...rest} = createTournamentDto
+    const categoryEntity = await this.categoryService.findOne(category)
+    const tournament = this.tournamentRepository.create({...rest,category: categoryEntity})
+    return this.tournamentRepository.save(tournament)
   }
 
   findAll() {
-    return `This action returns all tournament`;
+    return this.tournamentRepository.find();
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} tournament`;
+    return this.tournamentRepository.findOneBy({id})
   }
 
   update(id: number, updateTournamentDto: UpdateTournamentDto) {
@@ -21,6 +29,6 @@ export class TournamentService {
   }
 
   remove(id: number) {
-    return `This action removes a #${id} tournament`;
+    return this.tournamentRepository.delete({id});
   }
 }
