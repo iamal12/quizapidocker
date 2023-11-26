@@ -1,6 +1,4 @@
-import { useEffect, useRef } from 'react'
 import './App.css'
-import { io } from 'socket.io-client'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import LoginPage from './pages/Login'
 import { Alert, ThemeProvider } from '@mui/material'
