@@ -1,6 +1,6 @@
 export const userRoutes = {
     LOGIN_ROUTE: 'users/login',
-    ADMIN_ROUTE: 'users/admin'
+    ADMIN_ROUTE: 'users/admin',
 }
 
 export const appRoutes = {
@@ -10,4 +10,12 @@ export const appRoutes = {
     TOURNAMENT: '/tournament',
     CATEGORY: '/category',
     QUESTIONS: '/questions'
+}
+
+export const categoryRoutes = {
+    BASE: 'categories/'
+}
+
+export const tournamentRoutes = {
+    BASE: 'tournament/'
 }

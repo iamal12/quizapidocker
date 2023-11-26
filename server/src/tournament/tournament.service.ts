@@ -17,7 +17,7 @@ export class TournamentService {
   }
 
   findAll() {
-    return this.tournamentRepository.find();
+    return this.tournamentRepository.createQueryBuilder('tournament').innerJoinAndSelect('tournament.category','category').getMany();
   }
 
   findOne(id: number) {

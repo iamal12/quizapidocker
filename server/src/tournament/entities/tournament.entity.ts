@@ -1,7 +1,7 @@
 import { Category } from "src/categories/entities/category.entity";
 import { BaseEntity } from "src/database/base-entity";
 import { User } from "src/users/entities/user.entity";
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne } from "typeorm";
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, ManyToOne, OneToMany, OneToOne } from "typeorm";
 
 @Entity()
 export class Tournament extends BaseEntity {
@@ -18,7 +18,6 @@ export class Tournament extends BaseEntity {
     @JoinTable()
     users: User[]
 
-    @OneToOne(() => Category,{nullable: true})
-    @JoinColumn()
-    category?: Category
+    @ManyToOne(() => Category)
+    category: Category
 }

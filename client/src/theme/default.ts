@@ -5,7 +5,13 @@ export const defaultTheme: Partial<Theme> = createTheme({
         MuiTextField: {
             defaultProps: {
                 fullWidth: true,
-                variant: 'outlined'
+                variant: 'outlined',
+                margin: 'dense'
+            }
+        },
+        MuiSelect: {
+            defaultProps: {
+                fullWidth: true,variant: 'outlined',margin: 'dense'
             }
         },
         MuiButton: {
