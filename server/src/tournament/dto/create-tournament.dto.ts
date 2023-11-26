@@ -18,7 +18,6 @@ export class CreateTournamentDto {
 
 
     @ApiProperty({description: 'category'})
-    @IsOptional()
     @IsNumber()
-    category?: number
+    category: number
 }
