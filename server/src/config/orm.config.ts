@@ -1,7 +1,6 @@
 import { PostgresConnectionOptions } from "typeorm/driver/postgres/PostgresConnectionOptions";
 import 'dotenv/config'
 
-console.log('>>>>', process.env.POSTGRES_HOST, process.env.POSTGRES_USER, process.env.POSTGRES_PASSWORD, process.env.POSTGRES_DB)
 export const ormConfig: PostgresConnectionOptions = {
     type: 'postgres',
     host: process.env.POSTGRES_HOST,
@@ -11,6 +10,7 @@ export const ormConfig: PostgresConnectionOptions = {
     database: process.env.POSTGRES_DB,
     entities: ['dist/**/*.entity{.ts,.js}'],
     migrations: ['dist/migrations/*{.ts,.js}'],
+    subscribers: ["dist/subscribers/**/*{.js,.ts}"],
     synchronize: false,
     logging: ['error', 'warn', 'migration'],
     migrationsRun: true
