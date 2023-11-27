@@ -22,7 +22,7 @@ export class TournamentService {
   }
 
   findOne(id: number) {
-    return this.tournamentRepository.findOneBy({ id })
+    return this.tournamentRepository.findOne({ where: { id }, relations: ['users'] })
   }
 
   update(id: number, updateTournamentDto: UpdateTournamentDto) {
