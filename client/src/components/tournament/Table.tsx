@@ -21,13 +21,24 @@ const columns: GridColDef<ITournament>[] = [
         field: 'startTime',
         headerName: 'Start time',
         width: 200,
-        valueFormatter: ({ value }) => dayjs(value).format('DD-MM-YYYY HH:MM:SS')
+        valueFormatter: ({ value }) => dayjs(value).format('DD-MM-YYYY HH:MM')
     },
     {
         field: 'category',
         headerName: 'Category',
         width: 200,
         valueGetter: ({ row }) => row.category?.categoryName
+    },
+    {
+        field: 'usersJoined',
+        headerName: 'Users Joined',
+        width: 200,
+        valueGetter: ({ row }) => row.users.length
+    },
+    {
+        field: 'maxNumber',
+        headerName: 'Max Number',
+        width: 200,
     }
 ]
 

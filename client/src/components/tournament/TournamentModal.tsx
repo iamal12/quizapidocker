@@ -20,15 +20,17 @@ interface IFormData {
     description: string
     category?: string
     startTime: string
+    maxNumber: number
 }
 
 const initialData: IFormData = {
     name: '',
     description: '',
-    startTime: ''
+    startTime: '',
+    maxNumber: 2
 }
 
-type ActionType = 'NAME' | 'DESCRIPTION' | 'START_TIME' | 'CATEGORY'
+type ActionType = 'NAME' | 'DESCRIPTION' | 'START_TIME' | 'CATEGORY' | 'MAX_NUMBER'
 
 const formAction = (state = initialData, action: { type: ActionType, payload: any }) => {
     switch (action.type) {
@@ -39,6 +41,7 @@ const formAction = (state = initialData, action: { type: ActionType, payload: an
             return { ...state, startTime: formattedDate }
         }
         case 'CATEGORY': return { ...state, category: action.payload }
+        case 'MAX_NUMBER': return { ...state, maxNumber: action.payload }
     }
 }
 
@@ -83,6 +86,13 @@ export const TournamentModal: React.FC<Props> = ({ isOpened, setIsOpened, catego
                 <Select value={form.category} onChange={(e) => setForm({ payload: e.target.value, type: 'CATEGORY' })}>
                     {categoryOptions.map(({ value, label }) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
                 </Select>
+                <TextField
+                    id="maxNumber"
+                    label="Maximum Users"
+                    type="numberDESCRIPTION"
+                    value={form.maxNumber}
+                    onChange={(e) => setForm({ payload: e.target.value, type: 'MAX_NUMBER' })}
+                />
             </DialogContent>
             <DialogActions>
                 <Button onClick={() => setIsOpened(false)}>Cancel</Button>
