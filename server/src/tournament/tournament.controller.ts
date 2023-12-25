@@ -4,12 +4,13 @@ import { CreateTournamentDto } from './dto/create-tournament.dto';
 import { UpdateTournamentDto } from './dto/update-tournament.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { User } from 'src/decorators/user.decorator';
 
 @ApiTags('Tournament')
 @Controller('tournament')
 export class TournamentController {
-  constructor(private readonly tournamentService: TournamentService) {}
-  
+  constructor(private readonly tournamentService: TournamentService) { }
+
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Post()
@@ -24,12 +25,26 @@ export class TournamentController {
     return this.tournamentService.findAll();
   }
 
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/joined')
+  findJoinedTournaments(@User() user) {
+    return this.tournamentService.findJoinedTournaments(user);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/upcomingTournaments')
+  findUpcomingTournaments() {
+    return this.tournamentService.findUpcomingTournaments();
+  }
+
 
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Get('/join/:id')
-  join(@Param('id') id: string,@Req() req:any) {
-    return this.tournamentService.joinTournament(+id,req.user);
+  join(@Param('id') id: string, @Req() req: any) {
+    return this.tournamentService.joinTournament(+id, req.user);
   }
 
 
@@ -39,7 +54,7 @@ export class TournamentController {
   findOne(@Param('id') id: string) {
     return this.tournamentService.findOne(+id);
   }
-  
+
   @ApiBearerAuth()
   @UseGuards(AuthGuard('jwt'))
   @Patch(':id')

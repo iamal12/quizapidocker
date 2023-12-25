@@ -18,11 +18,29 @@ export class TournamentService {
   }
 
   findAll() {
-    return this.tournamentRepository.createQueryBuilder('tournament').innerJoinAndSelect('tournament.category', 'category').leftJoinAndSelect('tournament.users', 'users').getMany();
+    return this.tournamentRepository.createQueryBuilder('tournament').innerJoinAndSelect('tournament.category', 'category').leftJoinAndSelect('tournament.users', 'users').orderBy('tournament.created', 'DESC').getMany();
   }
 
   findOne(id: number) {
     return this.tournamentRepository.findOne({ where: { id }, relations: ['users'] })
+  }
+
+  findJoinedTournaments(user?: User) {
+    return this.tournamentRepository
+      .createQueryBuilder('tournament')
+      .innerJoinAndSelect('tournament.category', 'category')
+      .innerJoinAndSelect('tournament.users', 'users')
+      .where('users.id = :userId', { userId: user.id })
+      .orderBy('tournament.created', 'DESC').getMany();
+  }
+
+  findUpcomingTournaments() {
+    return this.tournamentRepository
+      .createQueryBuilder('tournament')
+      .innerJoinAndSelect('tournament.category', 'category')
+      .leftJoinAndSelect('tournament.users', 'users')
+      .where('tournament.startTime > :currentTime', { currentTime: new Date() })
+      .orderBy('tournament.created', 'DESC').getMany();
   }
 
   update(id: number, updateTournamentDto: UpdateTournamentDto) {
